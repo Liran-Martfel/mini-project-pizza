@@ -8,6 +8,15 @@ DROP TABLE pizza_toppings;
 DROP TABLE toppings;
 DROP TABLE menu;
 
+-------------------------------------------------------------
+-------------------------------------------------------------
+
+-- menu table serves as the public-facing price list.
+-- drinks, pizza_size and toppings maintain their own prices
+-- for internal use and historical price tracking.
+
+-------------------------------------------------------------
+-------------------------------------------------------------
 
 CREATE TABLE clients
 (
@@ -33,7 +42,9 @@ CREATE TABLE drinks
 (
 	drink_id INTEGER PRIMARY KEY AUTOINCREMENT,
 	drink_name TEXT NOT NULL,
-	drink_price REAL
+	drink_price REAL,
+	menu_id INTEGER,
+	FOREIGN KEY (menu_id) REFERENCES menu(item_id)
 );
 
 CREATE TABLE drinks_order
@@ -52,9 +63,12 @@ CREATE TABLE pizzas
 	pizza_id INTEGER PRIMARY KEY AUTOINCREMENT,
 	pizza_size_id INTEGER,
 	order_id INTEGER NOT NULL,
+	menu_id INTEGER,
 	stuffed_crust INTEGER NOT NULL DEFAULT 0, -- 0 is not stuffed
 	price_at_time REAL NOT NULL,
-	FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE RESTRICT
+	FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE RESTRICT,
+	FOREIGN KEY (pizza_size_id) REFERENCES pizza_size(pizza_size_id),
+	FOREIGN KEY (menu_id) REFERENCES menu(item_id)
 );
 
 CREATE TABLE pizza_size
@@ -118,11 +132,11 @@ VALUES
 (3,'2026-04-12 07:55:00','2026-04-12 08:30:00',1,0),
 (4,'2026-04-12 07:55:00','2026-04-12 08:55:00',1,0);
 
-INSERT INTO drinks (drink_name,drink_price)
+INSERT INTO drinks (drink_name,drink_price,menu_id)
 VALUES
-('water',4),
-('grape juice',6),
-('coca cola',8);
+('water',4,(SELECT item_id FROM menu WHERE item_name = 'water')),
+('grape juice',6,(SELECT item_id FROM menu WHERE item_name = 'grape juice')),
+('coca cola',8,(SELECT item_id FROM menu WHERE item_name = 'coca cola'));
 
 INSERT INTO drinks_order (drink_id,order_id,qty,price_at_time)
 VALUES
@@ -139,12 +153,12 @@ VALUES
 ('large pizza',65),
 ('extra large pizza',80);
 
-INSERT INTO pizzas (order_id,pizza_size_id,stuffed_crust,price_at_time)
+INSERT INTO pizzas (order_id,pizza_size_id,menu_id,stuffed_crust,price_at_time)
 VALUES
-(1,1,0,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 1)),
-(2,4,1,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 4)),
-(3,2,0,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 2)),
-(4,4,1,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 4));
+(1,1,(SELECT item_id FROM menu WHERE item_name = 'small pizza'),0,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 1)),
+(2,4,(SELECT item_id FROM menu WHERE item_name = 'extra large pizza'),1,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 4)),
+(3,2,(SELECT item_id FROM menu WHERE item_name = 'medium pizza'),0,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 2)),
+(4,4,(SELECT item_id FROM menu WHERE item_name = 'extra large pizza'),1,(SELECT size_price FROM pizza_size WHERE pizza_size_id = 4));
 
 INSERT INTO toppings (topping_name,topping_id,topping_price)
 VALUES
@@ -235,7 +249,6 @@ FROM pizzas p
 	where first_name ='Liran' and last_name = 'Martfel'
 UNION ALL
 
-
 SELECT 'TOTAL' AS item, 0 AS qty, SUM(price) AS price
 FROM
 (
@@ -260,7 +273,7 @@ FROM
         WHERE first_name ='Liran' AND last_name = 'Martfel'
 );
 
--- shows each order, when it was placed and when it was delevered and to who.
+-- shows each order, when it was placed and when it was delivered and to who.
 SELECT 
 	first_name,
 	last_name,
