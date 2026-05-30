@@ -1,12 +1,12 @@
-DROP TABLE drinks_order;
-DROP TABLE pizza_size;
-DROP TABLE pizzas;
-DROP TABLE drinks;
-DROP TABLE orders;
-DROP TABLE clients;
-DROP TABLE pizza_toppings;
-DROP TABLE toppings;
-DROP TABLE menu;
+DROP TABLE IF EXISTS drinks_order;
+DROP TABLE IF EXISTS pizza_toppings;
+DROP TABLE IF EXISTS pizzas;
+DROP TABLE IF EXISTS drinks;
+DROP TABLE IF EXISTS pizza_size;
+DROP TABLE IF EXISTS toppings;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS clients;
+DROP TABLE IF EXISTS menu;
 
 -------------------------------------------------------------
 -------------------------------------------------------------
