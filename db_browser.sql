@@ -121,7 +121,7 @@ VALUES
 INSERT INTO clients (phone,email,first_name,last_name)
 VALUES 
 ('054-123-123','123@123gmail.com','avi','del'),
-('054-4873-663','liran.martfel@gmail.com','Liran','Martfel'),
+('050-0000-001','liran.martfel@gmail.com','Liran','Martfel'),
 ('054-2222-222','222@gmail.com','Ido','Brener'),
 ('050-6456-888','dana@gmail','Dana','Martfel');
 
